@@ -1,6 +1,7 @@
 # AI Engineers World Fair Schedule Viewer
 
-This is a local-first React/Next.js app for viewing and managing your personal schedule for the AI Engineers World Fair.
+This is a simpe React/Next.js app for viewing and managing your personal schedule for the AI Engineers World Fair.
+View it here: [https://aiewf25.vercel.app/](https://aiewf25.vercel.app/)
 
 ## Features
 
@@ -48,7 +49,6 @@ This is a local-first React/Next.js app for viewing and managing your personal s
 - `app/page.tsx` — Main app page and state management
 
 ## Notes
-- This app is designed to run locally and does not require a backend.
 - Your schedule is private and stored only in your browser.
 
 ---
