@@ -69,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({ event, speakers, isSelected, onSelect
             right: 12,
             background: 'none',
             border: 'none',
-            fontSize: 22,
+            fontSize: 28,
             color: '#888',
             cursor: 'pointer',
             zIndex: 2,
@@ -90,17 +90,19 @@ const Sidebar: React.FC<SidebarProps> = ({ event, speakers, isSelected, onSelect
             borderRadius: 6,
             fontWeight: 600,
             cursor: 'pointer',
-            marginBottom: 20,
+            margin: '20px 0',
             width: '100%',
           }}
         >
           {isSelected ? 'Deselect' : 'Select'}
         </button>
         <h2 style={{ fontSize: 20, marginBottom: 8 }}>{event.title}</h2>
-        <div style={{ marginBottom: 12, color: '#666' }}>{event.description}</div>
+        <div style={{ marginBottom: 16, color: '#444', fontWeight: 500 }}>
+          {formatTimeRange(event.startsAt, event.endsAt)}
+        </div>
         <div style={{ marginBottom: 16 }}>
           <strong>Speakers:</strong>
-          <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+          <ul style={{ margin: '8px 0', padding: 0, listStyle: 'none' }}>
             {speakers.length === 0 && <li style={{ color: '#aaa' }}>None</li>}
             {speakers.map(speaker => (
               <li key={speaker.id} style={{ marginBottom: 6, display: 'flex', alignItems: 'center' }}>
@@ -113,9 +115,25 @@ const Sidebar: React.FC<SidebarProps> = ({ event, speakers, isSelected, onSelect
             ))}
           </ul>
         </div>
+        <div style={{ marginBottom: 12, color: '#666' }}>{event.description}</div>
       </div>
     </div>
   );
 };
 
-export default Sidebar; 
+export default Sidebar;
+
+function formatTimeRange(startsAt: string, endsAt: string) {
+  const start = new Date(startsAt);
+  const end = new Date(endsAt);
+  return `${formatTime(start)} - ${formatTime(end)}`;
+}
+
+function formatTime(date: Date) {
+  let h = date.getHours();
+  const m = date.getMinutes();
+  const ampm = h < 12 ? 'am' : 'pm';
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${h}:${m.toString().padStart(2, '0')} ${ampm}`;
+} 

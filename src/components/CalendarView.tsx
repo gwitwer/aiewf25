@@ -18,7 +18,7 @@ function isOverlap(a: Session, b: Session) {
 }
 
 const startHour = 9;
-const endHour = 19;
+const endHour = 18;
 const blocksPerHour = 6; // 10-min intervals
 const blocksPer30Min = 3;
 const totalBlocks = (endHour - startHour) * blocksPerHour;
@@ -71,145 +71,161 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   }
 
   return (
-    <div style={{ marginBottom: 40 }}>
-      {title && <h2 style={{ margin: '16px 0', fontSize: 20 }}>{title}</h2>}
-      <div style={{ overflowX: 'auto', width: '100%' }}>
+    <div className="w-full h-full overflow-x-auto">
+      {title && <h2 className="my-4 text-[20px]">{title}</h2>}
+      <div
+        className="grid border border-[#ccc] relative"
+        style={{
+          gridTemplateColumns: `80px repeat(${rooms.length}, 200px)`,
+          gridTemplateRows: `repeat(${totalRows}, 48px)`,
+          minWidth: 80 + rooms.length * 200,
+          height: '100%',
+        }}
+      >
+        {/* Header Row */}
         <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: `80px repeat(${rooms.length}, 200px)`,
-            gridTemplateRows: `repeat(${totalRows}, 40px)`,
-            border: '1px solid #ccc',
-            position: 'relative',
-            minWidth: 80 + rooms.length * 200,
-          }}
-        >
-          {/* Header Row */}
-          <div style={{ gridColumn: '1 / span 1', gridRow: '1 / span 1', background: '#f8f8f8', fontWeight: 'bold', borderRight: '1px solid #ccc', borderBottom: '1px solid #ccc', zIndex: 2 }} />
-          {rooms.map((room, i) => (
+          className="bg-[#f8f8f8] font-bold border-r border-b border-[#ccc] z-20 sticky left-0 flex items-center"
+          style={{ gridColumn: '1 / span 1', gridRow: '1 / span 1' }}
+        />
+        {rooms.map((room, i) => (
+          <div
+            key={room.id}
+            className="bg-[#f8f8f8] font-bold border-r border-b border-[#ccc] text-center z-20 flex items-center justify-center"
+            style={{
+              gridColumn: `${i + 2} / span 1`,
+              gridRow: '1 / span 1',
+              width: 200,
+              minWidth: 200,
+              maxWidth: 200,
+              boxSizing: 'border-box',
+              lineHeight: 1.2,
+            }}
+          >
+            {room.name}
+          </div>
+        ))}
+        {/* Time labels and grid cells */}
+        {Array.from({ length: totalRows }).map((_, rowIdx) => (
+          <React.Fragment key={rowIdx}>
+            {/* Time label */}
             <div
-              key={room.id}
+              className="bg-[#fafafa] text-[12px] text-right pr-2 z-20 sticky left-0 border-t border-r border-[#eee] border-r-[#ccc]"
               style={{
-                gridColumn: `${i + 2} / span 1`,
-                gridRow: '1 / span 1',
-                background: '#f8f8f8',
-                fontWeight: 'bold',
-                borderRight: '1px solid #ccc',
-                borderBottom: '1px solid #ccc',
-                textAlign: 'center',
-                zIndex: 2,
-                width: 200,
-                minWidth: 200,
-                maxWidth: 200,
-                boxSizing: 'border-box',
+                gridColumn: '1 / span 1',
+                gridRow: `${rowIdx + 2} / span 1`,
+                backgroundClip: 'padding-box',
               }}
             >
-              {room.name}
+              {getTimeLabel(rowIdx)}
             </div>
-          ))}
-          {/* Time labels and grid cells */}
-          {Array.from({ length: totalRows }).map((_, rowIdx) => (
-            <React.Fragment key={rowIdx}>
-              {/* Time label */}
-              <div
-                style={{
-                  gridColumn: '1 / span 1',
-                  gridRow: `${rowIdx + 2} / span 1`,
-                  borderTop: '1px solid #eee',
-                  borderRight: '1px solid #ccc',
-                  background: '#fafafa',
-                  fontSize: 12,
-                  textAlign: 'right',
-                  paddingRight: 8,
-                  zIndex: 1,
-                }}
-              >
-                {getTimeLabel(rowIdx)}
-              </div>
-              {/* Room columns for this 30-min row (3 blocks per row) */}
-              {rooms.map((room, colIdx) => {
-                // For each 30-min row, check if an event starts in any of its 3 blocks
-                const blockStart = rowIdx * blocksPer30Min;
-                let event: EventGridPlacement | null = null;
-                let eventBlockIdx = -1;
-                for (let b = 0; b < blocksPer30Min; ++b) {
-                  const placement = grid[blockStart + b][colIdx];
-                  if (placement && placement.startBlock === blockStart + b) {
-                    event = placement;
-                    eventBlockIdx = blockStart + b;
-                    break;
-                  }
+            {/* Room columns for this 30-min row (3 blocks per row) */}
+            {rooms.map((room, colIdx) => {
+              // For each 30-min row, check if an event starts in any of its 3 blocks
+              const blockStart = rowIdx * blocksPer30Min;
+              let event: EventGridPlacement | null = null;
+              let eventBlockIdx = -1;
+              for (let b = 0; b < blocksPer30Min; ++b) {
+                const placement = grid[blockStart + b][colIdx];
+                if (placement && placement.startBlock === blockStart + b) {
+                  event = placement;
+                  eventBlockIdx = blockStart + b;
+                  break;
                 }
-                if (!event) {
-                  // Empty cell
-                  return (
-                    <div
-                      key={room.id + '-' + rowIdx}
-                      style={{
-                        gridColumn: `${colIdx + 2} / span 1`,
-                        gridRow: `${rowIdx + 2} / span 1`,
-                        borderTop: '1px solid #eee',
-                        borderRight: '1px solid #ccc',
-                        position: 'relative',
-                        width: 200,
-                        minWidth: 200,
-                        maxWidth: 200,
-                        boxSizing: 'border-box',
-                      }}
-                    />
-                  );
-                }
-                // Only render the event once, spanning the correct number of blocks
-                const spanBlocks = event.endBlock - event.startBlock;
-                const spanRows = Math.ceil(spanBlocks / blocksPer30Min * 1); // in 30-min rows
-                const isSelected = selectedEventIds.includes(event.session.id);
-                const isConflicting = conflictIds.has(event.session.id);
-                const isActive = activeEventId === event.session.id;
-                let borderColor = '#e6f7ff';
-                if (isActive) borderColor = '#52c41a';
-                else if (isConflicting) borderColor = '#ffb3b3';
-                else if (isSelected) borderColor = '#1890ff';
-                const isHighlighted = isSelected || isConflicting || isActive;
+              }
+              if (!event) {
+                // Empty cell
                 return (
                   <div
                     key={room.id + '-' + rowIdx}
+                    className="border-t border-r border-[#eee] border-r-[#ccc] relative"
                     style={{
                       gridColumn: `${colIdx + 2} / span 1`,
-                      gridRow: `${rowIdx + 2} / span ${Math.ceil(spanBlocks / blocksPer30Min)}`,
-                      borderTop: isHighlighted ? `1px solid ${borderColor}` : '1px solid #eee',
-                      borderRight: isHighlighted ? `1px solid ${borderColor}` : '1px solid #ccc',
-                      borderBottom: isHighlighted ? `1px solid ${borderColor}` : '1px solid #eee',
-                      borderLeft: isHighlighted ? `1px solid ${borderColor}` : '1px solid #ccc',
-                      background: '#e6f7ff',
-                      position: 'relative',
-                      cursor: onEventClick ? 'pointer' : undefined,
-                      zIndex: 1,
+                      gridRow: `${rowIdx + 2} / span 1`,
                       width: 200,
                       minWidth: 200,
                       maxWidth: 200,
                       boxSizing: 'border-box',
-                      overflow: 'hidden',
                     }}
-                    onClick={onEventClick ? () => onEventClick(event!.session.id) : undefined}
-                    title={isConflicting ? 'Conflicts with another selected event' : isSelected ? 'Selected' : 'Click to select'}
-                  >
-                    <div style={{ fontWeight: 500, fontSize: 13, padding: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                      {event.session.title}
-                      {Array.isArray(event.session.speakers) && event.session.speakers.length > 0 && (
-                        <div style={{ fontWeight: 400, fontSize: 12, color: '#555', marginTop: 2 }}>
-                          {event.session.speakers
-                            .map((id: string) => speakerMap[id]?.fullName)
-                            .filter(Boolean)
-                            .join(', ')}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  />
                 );
-              })}
-            </React.Fragment>
-          ))}
-        </div>
+              }
+              // Only render the event once, spanning the correct number of blocks
+              const spanBlocks = event.endBlock - event.startBlock;
+              const isSelected = selectedEventIds.includes(event.session.id);
+              const isConflicting = conflictIds.has(event.session.id);
+              const isActive = activeEventId === event.session.id;
+              // Border color logic
+              let borderLeftRight = '#ccc';
+              let borderTopBottom = '#eee';
+              // Check if this is the only event in the row and has no overlap
+              const eventsInRow: { event: EventGridPlacement; colIdx: number }[] = [];
+              rooms.forEach((r, cIdx) => {
+                for (let b = 0; b < blocksPer30Min; ++b) {
+                  const placement = grid[blockStart + b][cIdx];
+                  if (placement && placement.startBlock === blockStart + b) {
+                    eventsInRow.push({ event: placement, colIdx: cIdx });
+                    break;
+                  }
+                }
+              });
+              if (
+                eventsInRow.length === 1 &&
+                !sessions.some(
+                  (s) => s.id !== event.session.id && isOverlap(event.session, s)
+                )
+              ) {
+                borderLeftRight = 'black';
+                borderTopBottom = 'black';
+              }
+              if (isSelected) {
+                borderLeftRight = '#52c41a';
+                borderTopBottom = '#52c41a';
+              }
+              if (isConflicting) {
+                borderLeftRight = '#ffb3b3';
+                borderTopBottom = '#ffb3b3';
+              }
+              if (isActive) {
+                borderLeftRight = '#1890ff';
+                borderTopBottom = '#1890ff';
+              }
+              return (
+                <div
+                  key={room.id + '-' + rowIdx}
+                  className="bg-[#e6f7ff] relative overflow-hidden"
+                  style={{
+                    gridColumn: `${colIdx + 2} / span 1`,
+                    gridRow: `${rowIdx + 2} / span ${Math.ceil(spanBlocks / blocksPer30Min)}`,
+                    borderTop: `1px solid ${borderTopBottom}`,
+                    borderRight: `1px solid ${borderLeftRight}`,
+                    borderBottom: `1px solid ${borderTopBottom}`,
+                    borderLeft: colIdx === 0 ? 'none' : `1px solid ${borderLeftRight}`,
+                    width: 200,
+                    minWidth: 200,
+                    maxWidth: 200,
+                    boxSizing: 'border-box',
+                    cursor: onEventClick ? 'pointer' : undefined,
+                    zIndex: 1,
+                  }}
+                  onClick={onEventClick ? () => onEventClick(event!.session.id) : undefined}
+                  title={isConflicting ? 'Conflicts with another selected event' : isSelected ? 'Selected' : 'Click to select'}
+                >
+                  <div className="font-medium text-[13px] p-1 overflow-hidden text-ellipsis whitespace-normal break-words">
+                    {event.session.title}
+                    {Array.isArray(event.session.speakers) && event.session.speakers.length > 0 && (
+                      <div className="font-normal text-[12px] text-[#555] mt-1">
+                        {event.session.speakers
+                          .map((id: string) => speakerMap[id]?.fullName)
+                          .filter(Boolean)
+                          .join(', ')}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </React.Fragment>
+        ))}
       </div>
     </div>
   );

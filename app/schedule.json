@@ -853,15 +853,15 @@
       "isConfirmed": true
     },
     {
-      "id": "927452",
-      "title": "[Placeholder] MCP Origins",
-      "description": "Early prototypes and demos from inside anthropic that have guided our thinking around MCP",
+      "id": "947165",
+      "title": "MCP Origins & RFS",
+      "description": "Learn more about the latest updates on MCP and get ideas for what startups to build.",
       "startsAt": "2025-06-04T11:15:00",
       "endsAt": "2025-06-04T11:35:00",
       "isServiceSession": false,
       "isPlenumSession": false,
       "speakers": [
-        "779d4c60-5b5f-4fed-8ef9-ce0ae17118a5"
+        "949f7c29-5425-4b48-8320-5b2104ba5778"
       ],
       "categoryItems": [],
       "questionAnswers": [],
@@ -1198,8 +1198,8 @@
     },
     {
       "id": "905305",
-      "title": "Building Hyperbolic: The On-Demand AI Cloud for GPUs, Inference, and AI Services",
-      "description": "AI moves fast. Legacy cloud can’t keep up. This session breaks down how Hyperbolic is redefining what developers should expect from AI infrastructure. We’ll cover how to instantly spin up low-cost GPUs, serve cutting-edge models with serverless inference, and deploy AI services at scale without the DevOps, rate limits, or pricing surprises. Whether you're training, fine-tuning, or just shipping fast, this is the new standard for building with AI.",
+      "title": "Why We Don’t Need More Data Centers",
+      "description": "AI infrastructure today is caught in an endless cycle: build more data centers, deploy more GPUs, repeat. \r\n\r\nBut this approach is fundamentally flawed—expensive, inefficient, and environmentally unsustainable. \r\n\r\nIn this talk, we will unpack why continuously expanding data centers masks deeper infrastructure inefficiencies, and why leveraging a GPU marketplace to dynamically allocate existing resources is essential. \r\n\r\nWe will explore practical use-cases where companies scale GPU capacity flexibly, startups gain affordable compute, and idle GPUs are monetized, enabling a future of sustainable and democratized AI infrastructure.",
       "startsAt": "2025-06-04T11:35:00",
       "endsAt": "2025-06-04T11:55:00",
       "isServiceSession": false,
@@ -1400,7 +1400,7 @@
     {
       "id": "937137",
       "title": "Large Scale AI on Apple Silicon using EXO",
-      "description": "The hardware lottery: when a research idea wins because it is better suited to current hardware and software, and not because it is universally superior.\r\n\r\nMachine learning researchers frequently regard hardware as a hard limit and halt their exploration. Yet throughout history, the decisive factor has often been which algorithm best fits the prevailing hardware-software stack - neural networks being the classic example.\r\n\r\nIn this talk, EXO Labs co-founder Alex Cheema will share recent algorithmic improvements for running large scale AI workloads on Apple Silicon.\r\n\r\nAlex will demonstrate how the EXO Framework enables inference, fine-tuning, and training of large ML models on Apple Silicon, from the scale of one MacBook locally to clusters of colocated M3 Ultra Mac Studios.",
+      "description": "The hardware lottery: when a research idea wins because it is better suited to current hardware and software, and not because it is universally superior.\r\n\r\nMachine learning researchers often treat hardware as a fixed constraint and stop exploring beyond it. Yet historically, breakthroughs have come from algorithms that best align with the dominant hardware-software stack - neural networks being a classic example.\r\n\r\nIn this talk, EXO Labs co-founder Alex Cheema will share recent algorithmic improvements for running large scale AI workloads on Apple Silicon.\r\n\r\nAlex will demonstrate how the EXO Framework enables inference, fine-tuning, and training of large ML models on Apple Silicon, from the scale of one MacBook locally to clusters of colocated M3 Ultra Mac Studios.",
       "startsAt": "2025-06-04T11:55:00",
       "endsAt": "2025-06-04T12:15:00",
       "isServiceSession": false,
@@ -2395,8 +2395,8 @@
       "id": "933675",
       "title": "Windsurf everywhere, doing everything, all at once",
       "description": "abstract tbd",
-      "startsAt": "2025-06-04T16:20:00",
-      "endsAt": "2025-06-04T16:40:00",
+      "startsAt": "2025-06-04T16:25:00",
+      "endsAt": "2025-06-04T16:45:00",
       "isServiceSession": false,
       "isPlenumSession": true,
       "speakers": [
@@ -2415,8 +2415,8 @@
       "id": "936006",
       "title": "#define AI Engineer",
       "description": "Greg Brockman's career and advice for AI Engineers",
-      "startsAt": "2025-06-04T16:40:00",
-      "endsAt": "2025-06-04T17:20:00",
+      "startsAt": "2025-06-04T16:45:00",
+      "endsAt": "2025-06-04T17:25:00",
       "isServiceSession": false,
       "isPlenumSession": true,
       "speakers": [
@@ -2453,15 +2453,15 @@
       "isConfirmed": false
     },
     {
-      "id": "936022",
-      "title": "Jack Rae Keynote",
-      "description": null,
+      "id": "947233",
+      "title": "Thinking Deeper in Gemini",
+      "description": "Progress towards general intelligence has been marked by identifying fundamental intelligence bottlenecks within existing models and developing solutions that improve the architecture or training objective. From this perspective, we discuss our work on Thinking in Gemini as a solution to a bottleneck in test-time compute. We will discuss recent progress in Thinking both from the benefit of capability and steerability, and discuss where our models are headed.",
       "startsAt": "2025-06-05T09:25:00",
       "endsAt": "2025-06-05T09:45:00",
       "isServiceSession": false,
       "isPlenumSession": true,
       "speakers": [
-        "5bbf871e-90a7-44a5-a459-410313b251e7"
+        "180a0ead-2015-4d8d-99a3-994465599d4f"
       ],
       "categoryItems": [],
       "questionAnswers": [],
@@ -3410,8 +3410,8 @@
       "isServiceSession": false,
       "isPlenumSession": false,
       "speakers": [
-        "dd411263-9e2b-4674-8af8-1414e13312b1",
-        "8fddc909-3278-4063-ac19-779f0afdda63"
+        "8fddc909-3278-4063-ac19-779f0afdda63",
+        "75424c50-c610-4614-bfcc-5842164fd37a"
       ],
       "categoryItems": [],
       "questionAnswers": [],
@@ -3420,7 +3420,7 @@
       "recordingUrl": null,
       "status": "Accepted",
       "isInformed": true,
-      "isConfirmed": false
+      "isConfirmed": true
     },
     {
       "id": "933580",
@@ -4069,7 +4069,7 @@
     {
       "id": "914798",
       "title": "Why you should care about AI interpretability",
-      "description": "Mechanistic interpretability is a frontier field that aims to reverse engineer neural networks. At Goodfire, we're operationalizing the latest in interpretability research with Ember: a universal platform for neural programming. Ember decodes the neurons of an AI model to give direct, programmable access to its internal representations.\r\nIn this talk, we'll share more about what's unlocked by moving beyond black-box inputs and outputs, including entirely new ways to apply, train, and align AI models. We're excited for a future in which neural programming allows users to discover new knowledge hidden in their model, precisely shape its behaviors, and improve its performance. ",
+      "description": "The goal of mechanistic interpretability is to reverse engineer neural networks. Having direct, programmable access to the internal neurons of models unlocks new ways for developers and users to interact with AI — from more precise steering to guardrails to novel user interfaces. While interpretability has long been an interesting research topic, it is now finding real-world use cases, making it an important tool for AI engineers.",
       "startsAt": "2025-06-05T14:40:00",
       "endsAt": "2025-06-05T15:00:00",
       "isServiceSession": false,
@@ -4251,7 +4251,7 @@
     {
       "id": "943904",
       "title": "State of AI Engineering 2025",
-      "description": "survey results!",
+      "description": "Come hear the results of the 2025 State of AI Engineering.",
       "startsAt": "2025-06-05T16:25:00",
       "endsAt": "2025-06-05T16:35:00",
       "isServiceSession": false,
@@ -4584,7 +4584,7 @@
       "questionAnswers": []
     },
     {
-      "id": "dd411263-9e2b-4674-8af8-1414e13312b1",
+      "id": "75424c50-c610-4614-bfcc-5842164fd37a",
       "firstName": "Arjun",
       "lastName": "Desai",
       "bio": "Cofounder @ Cartesia | Prev. Stanford ML PhD",
@@ -5241,22 +5241,6 @@
       "questionAnswers": []
     },
     {
-      "id": "15688085-28bc-44b9-9c4e-08843c881790",
-      "firstName": "David",
-      "lastName": "Hsu",
-      "bio": "David Hsu is the Founder and CEO of Retool, the leading platform for building custom internal tools. Under his leadership, Retool has transformed how companies like Amazon, DoorDash, and Airbnb develop enterprise applications—helping them move beyond rigid SaaS solutions to AI-powered, custom-built software that fit their unique workflows. ",
-      "tagLine": "CEO",
-      "profilePicture": "https://sessionize.com/image/0fa4-400o400o1-JkQHMM1HQ2EBxoYgf3BoaB.jpg",
-      "isTopSpeaker": false,
-      "links": [],
-      "sessions": [
-        915616
-      ],
-      "fullName": "David Hsu",
-      "categoryItems": [],
-      "questionAnswers": []
-    },
-    {
       "id": "210c2993-39c7-40d5-bf2a-73d5795d287a",
       "firstName": "David",
       "lastName": "Karam",
@@ -5398,6 +5382,22 @@
         914537
       ],
       "fullName": "Dominik Kundel",
+      "categoryItems": [],
+      "questionAnswers": []
+    },
+    {
+      "id": "15688085-28bc-44b9-9c4e-08843c881790",
+      "firstName": "Donald",
+      "lastName": "Hruska",
+      "bio": "Donald is the engineering lead for Retool's new Agents product.\r\n\r\n In his three years at Retool, Donald has led teams across AI, Mobile, and Retool's core app building product. Prior to his time at Retool, Donald co-founded and spent 5+ years growing Draftbit, a Y Combinator-backed company in the low code app building space.",
+      "tagLine": "Engineering lead for Retool Agents",
+      "profilePicture": "https://sessionize.com/image/ecab-400o400o1-aWNMPGqWvnWo1Gk93ZTdTv.jpg",
+      "isTopSpeaker": false,
+      "links": [],
+      "sessions": [
+        915616
+      ],
+      "fullName": "Donald Hruska",
       "categoryItems": [],
       "questionAnswers": []
     },
@@ -5868,16 +5868,16 @@
       "questionAnswers": []
     },
     {
-      "id": "5bbf871e-90a7-44a5-a459-410313b251e7",
+      "id": "180a0ead-2015-4d8d-99a3-994465599d4f",
       "firstName": "Jack",
       "lastName": "Rae",
-      "bio": null,
-      "tagLine": null,
-      "profilePicture": null,
+      "bio": "Lead of Gemini Thinking, co-lead of Gemini Pre-training",
+      "tagLine": "Principal Research Scientist",
+      "profilePicture": "https://sessionize.com/image/0ee9-400o400o1-HJhaKWVd9uu2vu1U8pmYrd.jpg",
       "isTopSpeaker": false,
       "links": [],
       "sessions": [
-        936022
+        947233
       ],
       "fullName": "Jack Rae",
       "categoryItems": [],
@@ -6008,22 +6008,6 @@
         915770
       ],
       "fullName": "Jeremy Silva",
-      "categoryItems": [],
-      "questionAnswers": []
-    },
-    {
-      "id": "779d4c60-5b5f-4fed-8ef9-ce0ae17118a5",
-      "firstName": "Jerome",
-      "lastName": "Swannack",
-      "bio": "[PLACEHOLDER]",
-      "tagLine": "Anthropic, MCP Team",
-      "profilePicture": "https://sessionize.com/image/495b-400o400o1-9jSKoLHfBgyuTQLzF5RoNR.png",
-      "isTopSpeaker": false,
-      "links": [],
-      "sessions": [
-        927452
-      ],
-      "fullName": "Jerome Swannack",
       "categoryItems": [],
       "questionAnswers": []
     },
@@ -7908,6 +7892,22 @@
         933678
       ],
       "fullName": "Tengyu Ma",
+      "categoryItems": [],
+      "questionAnswers": []
+    },
+    {
+      "id": "949f7c29-5425-4b48-8320-5b2104ba5778",
+      "firstName": "Theodora",
+      "lastName": "Chu",
+      "bio": "Theo is a product manager at Anthropic, focused on bringing knowledge to models. She works on the Anthropic API as well as MCP. Prior to Anthropic, she spent much of her career building zero-to-one products at her own startup as well as at Stripe. She's come full circle since dropping out of her master's in NLP at Stanford.",
+      "tagLine": "Product Manager for MCP @ Anthropic",
+      "profilePicture": "https://sessionize.com/image/1d1c-400o400o1-ajTF4nxM4NChpAuhb6XT1y.jpg",
+      "isTopSpeaker": false,
+      "links": [],
+      "sessions": [
+        947165
+      ],
+      "fullName": "Theodora Chu",
       "categoryItems": [],
       "questionAnswers": []
     },
