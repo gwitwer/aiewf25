@@ -6,6 +6,7 @@ import scheduleData from "../app/schedule.json";
 import { getScheduleForDay } from "@/src/utils/scheduleUtils";
 import { Session, Speaker } from "@/src/types/schedule";
 import { useIsMobile } from "@/src/utils/useIsMobile";
+import ExportICSButton from "@/src/components/ExportICSButton";
 
 const days = [
   { date: "2025-06-03", label: "Tuesday, June 3, 2025" },
@@ -107,7 +108,7 @@ export default function Home() {
                   fontSize: 16,
                   padding: '6px 18px',
                   borderRadius: 6,
-                  border: view === 'full' ? '2px solid #1890ff' : '1px solid #ccc',
+                  border: view === 'full' ? '1px solid #1890ff' : '1px solid #ccc',
                   background: view === 'full' ? '#1890ff' : '#fff',
                   color: view === 'full' ? '#fff' : '#222',
                   cursor: 'pointer',
@@ -123,7 +124,7 @@ export default function Home() {
                   fontSize: 16,
                   padding: '6px 18px',
                   borderRadius: 6,
-                  border: view === 'my' ? '2px solid #1890ff' : '1px solid #ccc',
+                  border: view === 'my' ? '1px solid #1890ff' : '1px solid #ccc',
                   background: view === 'my' ? '#1890ff' : '#fff',
                   color: view === 'my' ? '#fff' : '#222',
                   cursor: 'pointer',
@@ -132,8 +133,9 @@ export default function Home() {
               >
                 My Schedule
               </button>
+              <ExportICSButton sessions={mySessions} rooms={myRooms} />
             </div>
-            <div style={{ padding: '16px 16px 16px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '16px 16px 16px 16px' }}>
               <select
                 id="day-select"
                 value={selectedDay}
@@ -148,7 +150,7 @@ export default function Home() {
           </>
         ) : (
           <div style={{ padding: 24, paddingBottom: 0, display: 'flex', alignItems: 'center', gap: 24 }}>
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               <button
                 onClick={() => setView('full')}
                 style={{
@@ -156,7 +158,7 @@ export default function Home() {
                   fontSize: 16,
                   padding: '6px 18px',
                   borderRadius: 6,
-                  border: view === 'full' ? '2px solid #1890ff' : '1px solid #ccc',
+                  border: view === 'full' ? '1px solid #1890ff' : '1px solid #ccc',
                   background: view === 'full' ? '#1890ff' : '#fff',
                   color: view === 'full' ? '#fff' : '#222',
                   marginRight: 8,
@@ -172,7 +174,7 @@ export default function Home() {
                   fontSize: 16,
                   padding: '6px 18px',
                   borderRadius: 6,
-                  border: view === 'my' ? '2px solid #1890ff' : '1px solid #ccc',
+                  border: view === 'my' ? '1px solid #1890ff' : '1px solid #ccc',
                   background: view === 'my' ? '#1890ff' : '#fff',
                   color: view === 'my' ? '#fff' : '#222',
                   cursor: 'pointer',
@@ -180,8 +182,11 @@ export default function Home() {
               >
                 My Schedule
               </button>
+              <div style={{ marginLeft: 8 }}>
+                <ExportICSButton sessions={mySessions} rooms={myRooms} />
+              </div>
             </div>
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               <label htmlFor="day-select" style={{ fontWeight: 600, marginRight: 12 }}>Day:</label>
               <select
                 id="day-select"

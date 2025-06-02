@@ -23,6 +23,8 @@ const blocksPerHour = 6; // 10-min intervals
 const blocksPer30Min = 3;
 const totalBlocks = (endHour - startHour) * blocksPerHour;
 const totalRows = (endHour - startHour) * 2; // 30-min intervals
+const cellHeight = 48;
+const baseBorderColor = '#ccc';
 
 const CalendarView: React.FC<CalendarViewProps> = ({
   sessions,
@@ -74,23 +76,21 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     <div className="w-full h-full overflow-x-auto">
       {title && <h2 className="my-4 text-[20px]">{title}</h2>}
       <div
-        className="grid border border-[#ccc] relative"
+        className="grid relative"
         style={{
           gridTemplateColumns: `80px repeat(${rooms.length}, 200px)`,
-          gridTemplateRows: `repeat(${totalRows}, 48px)`,
-          minWidth: 80 + rooms.length * 200,
-          height: '100%',
+          gridTemplateRows: `repeat(${totalRows}, ${cellHeight}px)`,
         }}
       >
         {/* Header Row */}
         <div
-          className="bg-[#f8f8f8] font-bold border-r border-b border-[#ccc] z-20 sticky left-0 flex items-center"
+          className={`bg-[#f8f8f8] font-bold border border-b-0 border-l-0 border-[${baseBorderColor}] z-20 sticky left-0 flex items-center`}
           style={{ gridColumn: '1 / span 1', gridRow: '1 / span 1' }}
         />
         {rooms.map((room, i) => (
           <div
             key={room.id}
-            className="bg-[#f8f8f8] font-bold border-r border-b border-[#ccc] text-center z-20 flex items-center justify-center"
+            className={`bg-[#f4f4f4] font-bold border border-b-0 border-l-0 border-[${baseBorderColor}] text-center z-20 flex items-center justify-center`}
             style={{
               gridColumn: `${i + 2} / span 1`,
               gridRow: '1 / span 1',
@@ -109,7 +109,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           <React.Fragment key={rowIdx}>
             {/* Time label */}
             <div
-              className="bg-[#fafafa] text-[12px] text-right pr-2 z-20 sticky left-0 border-t border-r border-[#eee] border-r-[#ccc]"
+              className={`bg-[#fafafa] text-[12px] text-right z-20 sticky left-0 border-t border-r border-[#eee] border-r-[${baseBorderColor}] flex items-center justify-center`}
               style={{
                 gridColumn: '1 / span 1',
                 gridRow: `${rowIdx + 2} / span 1`,
@@ -137,10 +137,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 return (
                   <div
                     key={room.id + '-' + rowIdx}
-                    className="border-t border-r border-[#eee] border-r-[#ccc] relative"
+                    className={`border-t border-r border-[#eee] border-r-[${baseBorderColor}] relative`}
                     style={{
                       gridColumn: `${colIdx + 2} / span 1`,
                       gridRow: `${rowIdx + 2} / span 1`,
+                      minHeight: cellHeight,
                       width: 200,
                       minWidth: 200,
                       maxWidth: 200,
@@ -155,8 +156,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
               const isConflicting = conflictIds.has(event.session.id);
               const isActive = activeEventId === event.session.id;
               // Border color logic
-              let borderLeftRight = '#ccc';
-              let borderTopBottom = '#eee';
+              let borderLeftRightColor = baseBorderColor;
+              let borderTopBottomColor = '#eee';
               // Check if this is the only event in the row and has no overlap
               const eventsInRow: { event: EventGridPlacement; colIdx: number }[] = [];
               rooms.forEach((r, cIdx) => {
@@ -174,21 +175,23 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                   (s) => s.id !== event.session.id && isOverlap(event.session, s)
                 )
               ) {
-                borderLeftRight = 'black';
-                borderTopBottom = 'black';
+                borderLeftRightColor = 'black';
+                borderTopBottomColor = 'black';
               }
               if (isSelected) {
-                borderLeftRight = '#52c41a';
-                borderTopBottom = '#52c41a';
+                borderLeftRightColor = '#52c41a';
+                borderTopBottomColor = '#52c41a';
               }
               if (isConflicting) {
-                borderLeftRight = '#ffb3b3';
-                borderTopBottom = '#ffb3b3';
+                borderLeftRightColor = '#ffb3b3';
+                borderTopBottomColor = '#ffb3b3';
               }
               if (isActive) {
-                borderLeftRight = '#1890ff';
-                borderTopBottom = '#1890ff';
+                borderLeftRightColor = '#1890ff';
+                borderTopBottomColor = '#1890ff';
               }
+
+              const borderLeft = borderLeftRightColor === baseBorderColor ? '1px solid transparent' : `1px solid ${borderLeftRightColor}`;
               return (
                 <div
                   key={room.id + '-' + rowIdx}
@@ -196,10 +199,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                   style={{
                     gridColumn: `${colIdx + 2} / span 1`,
                     gridRow: `${rowIdx + 2} / span ${Math.ceil(spanBlocks / blocksPer30Min)}`,
-                    borderTop: `1px solid ${borderTopBottom}`,
-                    borderRight: `1px solid ${borderLeftRight}`,
-                    borderBottom: `1px solid ${borderTopBottom}`,
-                    borderLeft: colIdx === 0 ? 'none' : `1px solid ${borderLeftRight}`,
+                    borderTop: `1px solid ${borderTopBottomColor}`,
+                    borderRight: `1px solid ${borderLeftRightColor}`,
+                    borderBottom: `1px solid ${borderTopBottomColor}`,
+                    borderLeft,
                     width: 200,
                     minWidth: 200,
                     maxWidth: 200,
