@@ -5,6 +5,7 @@ import Sidebar from "@/src/components/Sidebar";
 import scheduleData from "../app/schedule.json";
 import { getScheduleForDay } from "@/src/utils/scheduleUtils";
 import { Session, Speaker } from "@/src/types/schedule";
+import { useIsMobile } from "@/src/utils/useIsMobile";
 
 const days = [
   { date: "2025-06-03", label: "Tuesday, June 3, 2025" },
@@ -23,6 +24,8 @@ export default function Home() {
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState(days[0].date);
   const [view, setView] = useState<'full' | 'my'>('full');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -38,6 +41,11 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem('selectedEventIds', JSON.stringify(selectedEventIds));
   }, [selectedEventIds]);
+
+  // Open sidebar when an event is selected
+  useEffect(() => {
+    if (activeEventId) setSidebarOpen(true);
+  }, [activeEventId]);
 
   const dayData = allDayData.find(d => d.date === selectedDay)!;
 
@@ -63,59 +71,131 @@ export default function Home() {
   const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedDay(e.target.value);
     setActiveEventId(null);
+    setSidebarOpen(false);
   };
 
+  const handleCloseSidebar = () => {
+    setSidebarOpen(false);
+    setActiveEventId(null);
+  };
+
+  // Sidebar width
+  const SIDEBAR_WIDTH = 350;
+
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
-      <div style={{ flex: 1, minWidth: 0, background: '#f9f9f9', display: 'flex', flexDirection: 'column', overflowY: 'auto', height: '100vh' }}>
-        <div style={{ padding: 24, paddingBottom: 0, display: 'flex', alignItems: 'center', gap: 24 }}>
-          <div>
-            <button
-              onClick={() => setView('full')}
-              style={{
-                fontWeight: 600,
-                fontSize: 16,
-                padding: '6px 18px',
-                borderRadius: 6,
-                border: view === 'full' ? '2px solid #1890ff' : '1px solid #ccc',
-                background: view === 'full' ? '#1890ff' : '#fff',
-                color: view === 'full' ? '#fff' : '#222',
-                marginRight: 8,
-                cursor: 'pointer',
-              }}
-            >
-              Full Schedule
-            </button>
-            <button
-              onClick={() => setView('my')}
-              style={{
-                fontWeight: 600,
-                fontSize: 16,
-                padding: '6px 18px',
-                borderRadius: 6,
-                border: view === 'my' ? '2px solid #1890ff' : '1px solid #ccc',
-                background: view === 'my' ? '#1890ff' : '#fff',
-                color: view === 'my' ? '#fff' : '#222',
-                cursor: 'pointer',
-              }}
-            >
-              My Schedule
-            </button>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative' }}>
+      <div
+        style={{
+          flex: 1,
+          minWidth: 0,
+          background: '#f9f9f9',
+          display: isMobile && sidebarOpen && activeEvent ? 'none' : 'flex',
+          flexDirection: 'column',
+          overflowY: 'auto',
+          height: '100vh',
+          transition: 'width 0.3s cubic-bezier(.4,0,.2,1)',
+        }}
+      >
+        {/* Header controls */}
+        {isMobile ? (
+          <>
+            <div style={{ display: 'flex', gap: 8, padding: '16px 16px 0 16px', justifyContent: 'center' }}>
+              <button
+                onClick={() => setView('full')}
+                style={{
+                  fontWeight: 600,
+                  fontSize: 16,
+                  padding: '6px 18px',
+                  borderRadius: 6,
+                  border: view === 'full' ? '2px solid #1890ff' : '1px solid #ccc',
+                  background: view === 'full' ? '#1890ff' : '#fff',
+                  color: view === 'full' ? '#fff' : '#222',
+                  cursor: 'pointer',
+                  flex: 1,
+                }}
+              >
+                Full Schedule
+              </button>
+              <button
+                onClick={() => setView('my')}
+                style={{
+                  fontWeight: 600,
+                  fontSize: 16,
+                  padding: '6px 18px',
+                  borderRadius: 6,
+                  border: view === 'my' ? '2px solid #1890ff' : '1px solid #ccc',
+                  background: view === 'my' ? '#1890ff' : '#fff',
+                  color: view === 'my' ? '#fff' : '#222',
+                  cursor: 'pointer',
+                  flex: 1,
+                }}
+              >
+                My Schedule
+              </button>
+            </div>
+            <div style={{ padding: '16px 16px 16px 16px' }}>
+              <select
+                id="day-select"
+                value={selectedDay}
+                onChange={handleDayChange}
+                style={{ fontSize: 16, padding: '6px 12px', borderRadius: 6, border: '1px solid #ccc', width: '100%' }}
+              >
+                {days.map(day => (
+                  <option key={day.date} value={day.date}>{day.label}</option>
+                ))}
+              </select>
+            </div>
+          </>
+        ) : (
+          <div style={{ padding: 24, paddingBottom: 0, display: 'flex', alignItems: 'center', gap: 24 }}>
+            <div>
+              <button
+                onClick={() => setView('full')}
+                style={{
+                  fontWeight: 600,
+                  fontSize: 16,
+                  padding: '6px 18px',
+                  borderRadius: 6,
+                  border: view === 'full' ? '2px solid #1890ff' : '1px solid #ccc',
+                  background: view === 'full' ? '#1890ff' : '#fff',
+                  color: view === 'full' ? '#fff' : '#222',
+                  marginRight: 8,
+                  cursor: 'pointer',
+                }}
+              >
+                Full Schedule
+              </button>
+              <button
+                onClick={() => setView('my')}
+                style={{
+                  fontWeight: 600,
+                  fontSize: 16,
+                  padding: '6px 18px',
+                  borderRadius: 6,
+                  border: view === 'my' ? '2px solid #1890ff' : '1px solid #ccc',
+                  background: view === 'my' ? '#1890ff' : '#fff',
+                  color: view === 'my' ? '#fff' : '#222',
+                  cursor: 'pointer',
+                }}
+              >
+                My Schedule
+              </button>
+            </div>
+            <div>
+              <label htmlFor="day-select" style={{ fontWeight: 600, marginRight: 12 }}>Day:</label>
+              <select
+                id="day-select"
+                value={selectedDay}
+                onChange={handleDayChange}
+                style={{ fontSize: 16, padding: '6px 12px', borderRadius: 6, border: '1px solid #ccc' }}
+              >
+                {days.map(day => (
+                  <option key={day.date} value={day.date}>{day.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div>
-            <label htmlFor="day-select" style={{ fontWeight: 600, marginRight: 12 }}>Day:</label>
-            <select
-              id="day-select"
-              value={selectedDay}
-              onChange={handleDayChange}
-              style={{ fontSize: 16, padding: '6px 12px', borderRadius: 6, border: '1px solid #ccc' }}
-            >
-              {days.map(day => (
-                <option key={day.date} value={day.date}>{day.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+        )}
         <div style={{ flex: 1, minWidth: 0, overflowX: 'auto', width: '100%' }}>
           {view === 'full' ? (
             <CalendarView
@@ -141,15 +221,47 @@ export default function Home() {
           )}
         </div>
       </div>
-      <div style={{ width: 350, borderLeft: '1px solid #eee', background: '#fff', minHeight: '100vh', boxShadow: '0 0 8px #eee' }}>
+      {/* Desktop sidebar */}
+      {!isMobile && (
+        <div
+          style={{
+            width: sidebarOpen && activeEvent ? SIDEBAR_WIDTH : 0,
+            minWidth: sidebarOpen && activeEvent ? SIDEBAR_WIDTH : 0,
+            maxWidth: sidebarOpen && activeEvent ? SIDEBAR_WIDTH : 0,
+            borderLeft: '1px solid #eee',
+            background: '#fff',
+            minHeight: '100vh',
+            boxShadow: '0 0 8px #eee',
+            position: 'relative',
+            transition: 'width 0.3s cubic-bezier(.4,0,.2,1)',
+            zIndex: 10,
+            overflow: 'hidden',
+          }}
+        >
+          {sidebarOpen && activeEvent && (
+            <Sidebar
+              event={activeEvent}
+              speakers={activeSpeakers}
+              isSelected={isSelected}
+              onSelect={handleSelect}
+              onDeselect={handleDeselect}
+              onClose={handleCloseSidebar}
+            />
+          )}
+        </div>
+      )}
+      {/* Mobile sidebar overlay */}
+      {isMobile && sidebarOpen && activeEvent && (
         <Sidebar
           event={activeEvent}
           speakers={activeSpeakers}
           isSelected={isSelected}
           onSelect={handleSelect}
           onDeselect={handleDeselect}
+          onClose={handleCloseSidebar}
+          mobile
         />
-      </div>
+      )}
     </div>
   );
 }
