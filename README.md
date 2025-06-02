@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Engineers World Fair Schedule Viewer
+
+This is a local-first React/Next.js app for viewing and managing your personal schedule for the AI Engineers World Fair.
+
+## Features
+
+- **Calendar View:**
+  - See all events for each day, organized by room and time (9am–7pm, 30-minute intervals).
+  - Horizontally scrollable for many rooms.
+  - Click any event to view details and speakers in a sidebar.
+- **Personal Schedule:**
+  - Select or deselect events to add/remove them from your personal schedule.
+  - "My Schedule" view shows only your selected events, with only relevant rooms.
+  - Conflict detection highlights overlapping events (in full schedule view).
+- **Persistence:**
+  - Your selected events are saved in your browser's localStorage and persist across reloads.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18 or newer recommended)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Installation
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **Run the development server:**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **Open your browser:**
+   Visit [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+## Project Structure
+- `app/schedule.json` — Source of all event, room, and speaker data
+- `src/components/CalendarView.tsx` — Main calendar grid UI
+- `src/components/Sidebar.tsx` — Event details and selection sidebar
+- `src/utils/scheduleUtils.ts` — Data normalization and grid logic
+- `app/page.tsx` — Main app page and state management
 
-To learn more about Next.js, take a look at the following resources:
+## Notes
+- This app is designed to run locally and does not require a backend.
+- Your schedule is private and stored only in your browser.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Enjoy the World Fair! 🎉
