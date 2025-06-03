@@ -101,7 +101,6 @@ const Sidebar: React.FC<SidebarProps> = ({ event, speakers, isSelected, onSelect
           {formatTimeRange(event.startsAt, event.endsAt)}
         </div>
         <div style={{ marginBottom: 16 }}>
-          <strong>Speakers:</strong>
           <ul style={{ margin: '8px 0', padding: 0, listStyle: 'none' }}>
             {speakers.length === 0 && <li style={{ color: '#aaa' }}>None</li>}
             {speakers.map(speaker => (
@@ -117,6 +116,30 @@ const Sidebar: React.FC<SidebarProps> = ({ event, speakers, isSelected, onSelect
         </div>
         <div style={{ marginBottom: 12, color: '#666' }}>{event.description}</div>
       </div>
+      {/* Detailed speakers list at the bottom */}
+      {speakers.length > 0 && (
+        <div style={{ borderTop: '1px solid #eee', marginTop: 24, paddingTop: 16 }}>
+          <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 10 }}>Bios</div>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {speakers.map(speaker => (
+              <li key={speaker.id} style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {speaker.profilePicture && (
+                    <img src={speaker.profilePicture} alt={speaker.fullName} style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', background: '#f3f3f3' }} />
+                  )}
+                  <span style={{ fontWeight: 500, fontSize: 15 }}>{speaker.fullName}</span>
+                </div>
+                {speaker.tagLine && (
+                  <div style={{ color: '#888', fontSize: 13, margin: '4px 0 0 0', fontStyle: 'italic' }}>{speaker.tagLine}</div>
+                )}
+                {speaker.bio && (
+                  <div style={{ color: '#555', fontSize: 13, marginTop: 4, whiteSpace: 'pre-line' }}>{speaker.bio}</div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

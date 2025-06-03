@@ -14,11 +14,14 @@ const days = [
   { date: "2025-06-05", label: "Thursday, June 5, 2025" },
 ];
 
-// Precompute all day data
-const allDayData = days.map(day => ({
-  ...day,
-  ...getScheduleForDay(scheduleData, day.date),
-}));
+function isValidRemoteSchedule(data: any) {
+  return (
+    data &&
+    Array.isArray(data.sessions) &&
+    Array.isArray(data.rooms) &&
+    Array.isArray(data.speakers)
+  );
+}
 
 export default function Home() {
   const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
@@ -26,7 +29,36 @@ export default function Home() {
   const [selectedDay, setSelectedDay] = useState(days[0].date);
   const [view, setView] = useState<'full' | 'my'>('full');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [scheduleSource, setScheduleSource] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
+
+  // Fetch remote schedule on mount
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetch('https://sessionize.com/api/v2/w3hd2z8a/view/All')
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(remoteData => {
+        // Try to normalize remoteData to {sessions, rooms, speakers}
+        // Sessionize format: sessions in sessions, rooms in rooms, speakers in speakers
+        if (isValidRemoteSchedule(remoteData)) {
+          if (!cancelled) {
+            setScheduleSource(remoteData);
+            setLoading(false);
+          }
+        } else {
+          throw new Error('Remote data missing expected fields');
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setScheduleSource(scheduleData);
+          setLoading(false);
+        }
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -48,17 +80,26 @@ export default function Home() {
     if (activeEventId) setSidebarOpen(true);
   }, [activeEventId]);
 
+  // Compute allDayData and dayData from loaded scheduleSource
+  const allDayData = React.useMemo(() => {
+    if (!scheduleSource) return [];
+    return days.map(day => ({
+      ...day,
+      ...getScheduleForDay(scheduleSource, day.date),
+    }));
+  }, [scheduleSource]);
+
   const dayData = allDayData.find(d => d.date === selectedDay)!;
 
   // Filter for My Schedule view
-  const mySessions = dayData.sessions.filter(s => selectedEventIds.includes(s.id));
+  const mySessions = dayData?.sessions?.filter(s => selectedEventIds.includes(s.id)) || [];
   const myRoomIds = Array.from(new Set(mySessions.map(s => s.roomId)));
-  const myRooms = dayData.rooms.filter(r => myRoomIds.includes(r.id));
+  const myRooms = dayData?.rooms?.filter(r => myRoomIds.includes(r.id)) || [];
 
   // Find the active event and speakers for the selected day
-  const activeEvent: Session | null = dayData.sessions.find(s => s.id === activeEventId) || null;
+  const activeEvent: Session | null = dayData?.sessions?.find(s => s.id === activeEventId) || null;
   const activeSpeakers: Speaker[] = activeEvent
-    ? (activeEvent.speakers || []).map((id: string) => dayData.speakers.find(s => s.id === id)).filter(Boolean) as Speaker[]
+    ? (activeEvent.speakers || []).map((id: string) => dayData.speakers.find((s: Speaker) => s.id === id)).filter(Boolean) as Speaker[]
     : [];
   const isSelected = !!(activeEvent && selectedEventIds.includes(activeEvent.id));
 
@@ -82,6 +123,10 @@ export default function Home() {
 
   // Sidebar width
   const SIDEBAR_WIDTH = 350;
+
+  if (loading) {
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: 20 }}>Loading schedule from ai.engineer…</div>;
+  }
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative' }}>
