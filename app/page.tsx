@@ -194,7 +194,7 @@ export default function Home() {
             </div>
           </>
         ) : (
-          <div style={{ padding: 24, paddingBottom: 0, display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div className="flex items-center gap-6 p-6 pb-0">
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <button
                 onClick={() => setView('full')}
@@ -252,7 +252,6 @@ export default function Home() {
               sessions={dayData.sessions}
               rooms={dayData.rooms}
               speakers={dayData.speakers}
-              title={dayData.label}
               selectedEventIds={selectedEventIds}
               activeEventId={activeEventId}
               onEventClick={setActiveEventId}
@@ -262,7 +261,6 @@ export default function Home() {
               sessions={mySessions}
               rooms={myRooms}
               speakers={dayData.speakers}
-              title={dayData.label + ' — My Schedule'}
               selectedEventIds={selectedEventIds}
               activeEventId={activeEventId}
               onEventClick={setActiveEventId}

@@ -6,7 +6,6 @@ interface CalendarViewProps {
   sessions: Session[];
   rooms: Room[];
   speakers: Speaker[];
-  title?: string;
   selectedEventIds?: string[];
   activeEventId?: string | null;
   onEventClick?: (id: string) => void;
@@ -30,7 +29,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   sessions,
   rooms,
   speakers,
-  title,
   selectedEventIds = [],
   activeEventId = null,
   onEventClick,
@@ -73,8 +71,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   }
 
   return (
-    <div className="w-full h-full overflow-x-auto">
-      {title && <h2 className="my-4 text-[20px]">{title}</h2>}
+    <div className="w-full h-full overflow-x-auto pt-6">
+      {/* {title && <h2 className="my-4 text-[20px]">{title}</h2>} */}
       <div
         className="grid relative"
         style={{
@@ -84,13 +82,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       >
         {/* Header Row */}
         <div
-          className={`bg-[#f8f8f8] font-bold border border-b-0 border-l-0 border-[${baseBorderColor}] z-20 sticky left-0 flex items-center`}
+          className={`bg-[#f8f8f8] font-bold border border-b-0 border-l-0 border-[#ccc] z-20 sticky left-0 flex items-center`}
           style={{ gridColumn: '1 / span 1', gridRow: '1 / span 1' }}
         />
         {rooms.map((room, i) => (
           <div
             key={room.id}
-            className={`bg-[#f4f4f4] font-bold border border-b-0 border-l-0 border-[${baseBorderColor}] text-center z-20 flex items-center justify-center`}
+            className={`bg-[#f4f4f4] font-bold border border-b-0 border-l-0 border-[#ccc] text-center z-20 flex items-center justify-center`}
             style={{
               gridColumn: `${i + 2} / span 1`,
               gridRow: '1 / span 1',
