@@ -139,10 +139,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   }
 
   // Helper to determine if a session should have a bottom border
-  function sessionShouldHaveBorderBottom(rowIdx: number, roomIdx: number) {
+  function sessionShouldHaveBorderBottom(rowIdx: number, roomIdx: number, isSpecial: boolean) {
     // Check if there's a session starting in the next block in the same room
     const nextBlockPlacement = grid[rowIdx + 1]?.[roomIdx];
-    return !nextBlockPlacement || nextBlockPlacement.startBlock !== rowIdx + 1;
+    return !nextBlockPlacement || nextBlockPlacement.startBlock !== rowIdx + 1 || isSpecial;
   }
 
   return (
@@ -265,7 +265,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
               // Border color logic
               let borderLeftRightColor = BASE_BORDER_COLOR;
-              let borderTopBottomColor = '#eee';
+              let borderTopBottomColor = BASE_BORDER_COLOR;
 
               // Check if this is the only event in the row and has no overlap
               const eventsInRow: { event: EventGridPlacement; colIdx: number }[] = [];
@@ -282,8 +282,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                   (s) => s.id !== event.session.id && isOverlap(event.session, s)
                 )
               ) {
-                borderLeftRightColor = 'black';
-                borderTopBottomColor = 'black';
+                borderLeftRightColor = '#888';
+                borderTopBottomColor = '#888';
               }
               if (isSelected) {
                 borderLeftRightColor = '#52c41a';
@@ -298,6 +298,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 borderTopBottomColor = '#1890ff';
               }
 
+              const isSpecial = borderTopBottomColor !== BASE_BORDER_COLOR;
+
               const borderLeft = borderLeftRightColor === BASE_BORDER_COLOR ? '1px solid transparent' : `1px solid ${borderLeftRightColor}`;
               return (
                 <div
@@ -308,7 +310,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     gridRow: `${rowIdx + 2} / span ${spanBlocks}`,
                     borderTop: `1px solid ${borderTopBottomColor}`,
                     borderRight: `1px solid ${borderLeftRightColor}`,
-                    borderBottom: sessionShouldHaveBorderBottom(rowIdx + spanBlocks - 1, colIdx) ? `1px solid ${borderTopBottomColor}` : 'none',
+                    borderBottom: sessionShouldHaveBorderBottom(rowIdx + spanBlocks - 1, colIdx, isSpecial) ? `1px solid ${borderTopBottomColor}` : 'none',
                     borderLeft,
                     width: ROOM_COLUMN_WIDTH,
                     minWidth: ROOM_COLUMN_WIDTH,
