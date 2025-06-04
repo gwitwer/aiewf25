@@ -255,6 +255,7 @@ export default function Home() {
               selectedEventIds={selectedEventIds}
               activeEventId={activeEventId}
               onEventClick={setActiveEventId}
+              selectedDate={new Date(selectedDay + 'T00:00:00')}
             />
           ) : (
             <CalendarView
@@ -264,6 +265,7 @@ export default function Home() {
               selectedEventIds={selectedEventIds}
               activeEventId={activeEventId}
               onEventClick={setActiveEventId}
+              selectedDate={new Date(selectedDay + 'T00:00:00')}
               hideConflicts={true}
             />
           )}

@@ -1,6 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { normalizeSchedule, buildEventGridPlacements } from '../utils/scheduleUtils';
 import { Room, Session, Speaker, EventGridPlacement } from '../types/schedule';
+import {
+  CALENDAR_START_HOUR,
+  CALENDAR_END_HOUR,
+  BLOCKS_PER_HOUR,
+  BLOCKS_PER_30_MIN,
+  TOTAL_BLOCKS,
+  TOTAL_ROWS,
+  CELL_HEIGHT,
+  BASE_BORDER_COLOR,
+  ROOM_COLUMN_WIDTH,
+  TIME_COLUMN_WIDTH,
+} from '../constants';
 
 interface CalendarViewProps {
   sessions: Session[];
@@ -10,20 +22,12 @@ interface CalendarViewProps {
   activeEventId?: string | null;
   onEventClick?: (id: string) => void;
   hideConflicts?: boolean;
+  selectedDate?: Date;
 }
 
 function isOverlap(a: Session, b: Session) {
   return a.startsAt < b.endsAt && b.startsAt < a.endsAt;
 }
-
-const startHour = 9;
-const endHour = 18;
-const blocksPerHour = 6; // 10-min intervals
-const blocksPer30Min = 3;
-const totalBlocks = (endHour - startHour) * blocksPerHour;
-const totalRows = (endHour - startHour) * 2; // 30-min intervals
-const cellHeight = 48;
-const baseBorderColor = '#ccc';
 
 const CalendarView: React.FC<CalendarViewProps> = ({
   sessions,
@@ -33,10 +37,75 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   activeEventId = null,
   onEventClick,
   hideConflicts = false,
+  selectedDate,
 }) => {
+  const [currentTimePosition, setCurrentTimePosition] = useState<number | null>(null);
+
   const normalized = normalizeSchedule({ sessions, rooms, speakers });
   const { speakerMap } = normalized;
   const { timeBlocks, eventPlacements } = buildEventGridPlacements(sessions, rooms);
+
+  // Update current time position every minute
+  useEffect(() => {
+    const updateCurrentTime = () => {
+      if (!selectedDate) {
+        setCurrentTimePosition(null);
+        return;
+      }
+
+      const now = new Date();
+      // Compare year, month, and day separately to avoid timezone issues
+      const isToday = 
+        now.getFullYear() === selectedDate.getFullYear() &&
+        now.getMonth() === selectedDate.getMonth() &&
+        now.getDate() === selectedDate.getDate();
+      
+      console.log('isToday', isToday, {
+        now: now.toISOString(),
+        selected: selectedDate.toISOString(),
+        nowYear: now.getFullYear(),
+        selectedYear: selectedDate.getFullYear(),
+        nowMonth: now.getMonth(),
+        selectedMonth: selectedDate.getMonth(),
+        nowDate: now.getDate(),
+        selectedDate: selectedDate.getDate()
+      });
+      
+      if (!isToday) {
+        setCurrentTimePosition(null);
+        return;
+      }
+
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      
+      // Calculate position based on current time
+      const hourOffset = currentHour - CALENDAR_START_HOUR;
+      if (hourOffset < 0) {
+        setCurrentTimePosition(null);
+        return;
+      }
+
+      // Calculate exact position in 5-minute blocks
+      const minuteOffset = Math.floor(currentMinute / 5); // Round down to nearest 5 minutes
+      const totalOffset = (hourOffset * BLOCKS_PER_HOUR) + minuteOffset;
+      
+      console.log('Time position calculation:', {
+        currentHour,
+        currentMinute,
+        hourOffset,
+        minuteOffset,
+        totalOffset,
+        blocksPerHour: BLOCKS_PER_HOUR
+      });
+      
+      setCurrentTimePosition(totalOffset);
+    };
+
+    updateCurrentTime();
+    const interval = setInterval(updateCurrentTime, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, [selectedDate]);
 
   // Find conflicts
   let conflictIds = new Set<string>();
@@ -53,7 +122,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   }
 
   // Build a 2D array for event placement: [block][room]
-  const grid: (null | EventGridPlacement)[][] = Array.from({ length: totalBlocks }, () => Array(rooms.length).fill(null));
+  const grid: (null | EventGridPlacement)[][] = Array.from({ length: TOTAL_BLOCKS }, () => Array(rooms.length).fill(null));
   eventPlacements.forEach(placement => {
     for (let b = placement.startBlock; b < placement.endBlock; ++b) {
       grid[b][placement.roomIndex] = placement;
@@ -62,12 +131,32 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   // Helper to get time label for each 30-min interval
   function getTimeLabel(rowIdx: number) {
-    const blockIdx = rowIdx * blocksPer30Min;
+    // Only show labels at 30-minute intervals
+    if (rowIdx % BLOCKS_PER_30_MIN !== 0) return '';
+    
+    const blockIdx = rowIdx;
     const block = timeBlocks[blockIdx];
     if (!block) return '';
     const hour = block.hour % 12 === 0 ? 12 : block.hour % 12;
     const ampm = block.hour < 12 ? 'am' : 'pm';
     return `${hour}:${block.minute.toString().padStart(2, '0')} ${ampm}`;
+  }
+
+  // Helper to determine if a row should have a border
+  function shouldHaveBorder(rowIdx: number) {
+    return rowIdx % BLOCKS_PER_30_MIN === 0;
+  }
+
+  // Helper to determine if this is a time label row
+  function isTimeLabelRow(rowIdx: number) {
+    return rowIdx % BLOCKS_PER_30_MIN === 0;
+  }
+
+  // Helper to determine if a session should have a bottom border
+  function sessionShouldHaveBorderBottom(rowIdx: number, roomIdx: number) {
+    // Check if there's a session starting in the next block in the same room
+    const nextBlockPlacement = grid[rowIdx + 1]?.[roomIdx];
+    return !nextBlockPlacement || nextBlockPlacement.startBlock !== rowIdx + 1;
   }
 
   return (
@@ -76,25 +165,41 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       <div
         className="grid relative"
         style={{
-          gridTemplateColumns: `80px repeat(${rooms.length}, 200px)`,
-          gridTemplateRows: `repeat(${totalRows}, ${cellHeight}px)`,
+          gridTemplateColumns: `${TIME_COLUMN_WIDTH}px repeat(${rooms.length}, ${ROOM_COLUMN_WIDTH}px)`,
+          gridTemplateRows: `${CELL_HEIGHT * 4}px repeat(${TOTAL_ROWS}, ${CELL_HEIGHT}px)`,
         }}
       >
+        {/* Current time indicator */}
+        {currentTimePosition !== null && (
+          <div
+            className="absolute left-0 right-0 z-50 pointer-events-none"
+            style={{
+              top: `${(currentTimePosition + 4) * CELL_HEIGHT}px`, // +4 to account for header row (which is 4 blocks tall)
+              height: '2px',
+              background: 'rgba(255, 0, 0, 0.33)',
+              width: '100%',
+            }}
+          >
+          </div>
+        )}
         {/* Header Row */}
         <div
-          className={`bg-[#f8f8f8] font-bold border border-b-0 border-l-0 border-[#ccc] z-20 sticky left-0 flex items-center`}
-          style={{ gridColumn: '1 / span 1', gridRow: '1 / span 1' }}
+          className={`bg-[#f8f8f8] font-bold border border-b-0 border-l-0 border-[${BASE_BORDER_COLOR}] z-20 sticky left-0 flex items-center`}
+          style={{ 
+            gridColumn: '1 / span 1', 
+            gridRow: '1 / span 2',
+          }}
         />
         {rooms.map((room, i) => (
           <div
             key={room.id}
-            className={`bg-[#f4f4f4] font-bold border border-b-0 border-l-0 border-[#ccc] text-center z-20 flex items-center justify-center`}
+            className={`bg-[#f4f4f4] font-bold border border-b-0 border-l-0 border-[${BASE_BORDER_COLOR}] text-center z-20 flex items-center justify-center`}
             style={{
               gridColumn: `${i + 2} / span 1`,
               gridRow: '1 / span 1',
-              width: 200,
-              minWidth: 200,
-              maxWidth: 200,
+              width: ROOM_COLUMN_WIDTH,
+              minWidth: ROOM_COLUMN_WIDTH,
+              maxWidth: ROOM_COLUMN_WIDTH,
               boxSizing: 'border-box',
               lineHeight: 1.2,
             }}
@@ -103,70 +208,86 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
         ))}
         {/* Time labels and grid cells */}
-        {Array.from({ length: totalRows }).map((_, rowIdx) => (
+        {Array.from({ length: TOTAL_ROWS }).map((_, rowIdx) => (
           <React.Fragment key={rowIdx}>
-            {/* Time label */}
-            <div
-              className={`bg-[#fafafa] text-[12px] text-right z-20 sticky left-0 border-t border-r border-[#eee] border-r-[${baseBorderColor}] flex items-center justify-center`}
-              style={{
-                gridColumn: '1 / span 1',
-                gridRow: `${rowIdx + 2} / span 1`,
-                backgroundClip: 'padding-box',
-              }}
-            >
-              {getTimeLabel(rowIdx)}
-            </div>
-            {/* Room columns for this 30-min row (3 blocks per row) */}
+            {/* Time label - spans 6 blocks (30 minutes) */}
+            {isTimeLabelRow(rowIdx) ? (
+              <div
+                className={`bg-[#fafafa] text-[12px] text-right z-20 sticky left-0 flex items-center justify-center`}
+                style={{
+                  gridColumn: '1 / span 1',
+                  gridRow: `${rowIdx + 2} / span ${BLOCKS_PER_30_MIN}`,
+                  backgroundClip: 'padding-box',
+                  borderTop: `1px solid ${BASE_BORDER_COLOR}`,
+                  borderRight: `1px solid ${BASE_BORDER_COLOR}`,
+                  borderBottom: `1px solid ${BASE_BORDER_COLOR}`,
+                }}
+              >
+                {getTimeLabel(rowIdx)}
+              </div>
+            ) : (
+              <div
+                className="bg-[#fafafa]"
+                style={{
+                  gridColumn: '1 / span 1',
+                  gridRow: `${rowIdx + 2} / span 1`,
+                  borderRight: `1px solid ${BASE_BORDER_COLOR}`,
+                }}
+              />
+            )}
+            {/* Room columns for this 5-min row */}
             {rooms.map((room, colIdx) => {
-              // For each 30-min row, check if an event starts in any of its 3 blocks
-              const blockStart = rowIdx * blocksPer30Min;
+              const blockStart = rowIdx;
               let event: EventGridPlacement | null = null;
               let eventBlockIdx = -1;
-              for (let b = 0; b < blocksPer30Min; ++b) {
-                const placement = grid[blockStart + b][colIdx];
-                if (placement && placement.startBlock === blockStart + b) {
-                  event = placement;
-                  eventBlockIdx = blockStart + b;
-                  break;
-                }
+              
+              const placement = grid[blockStart][colIdx];
+              if (placement && placement.startBlock === blockStart) {
+                event = placement;
+                eventBlockIdx = blockStart;
               }
+
               if (!event) {
                 // Empty cell
                 return (
                   <div
                     key={room.id + '-' + rowIdx}
-                    className={`border-t border-r border-[#eee] border-r-[${baseBorderColor}] relative`}
+                    className="relative"
                     style={{
                       gridColumn: `${colIdx + 2} / span 1`,
                       gridRow: `${rowIdx + 2} / span 1`,
-                      minHeight: cellHeight,
-                      width: 200,
-                      minWidth: 200,
-                      maxWidth: 200,
+                      minHeight: CELL_HEIGHT,
+                      width: ROOM_COLUMN_WIDTH,
+                      minWidth: ROOM_COLUMN_WIDTH,
+                      maxWidth: ROOM_COLUMN_WIDTH,
                       boxSizing: 'border-box',
+                      borderTop: shouldHaveBorder(rowIdx) ? `1px solid ${BASE_BORDER_COLOR}` : 'none',
+                      borderRight: `1px solid ${BASE_BORDER_COLOR}`,
+                      // borderBottom: shouldHaveBorder(rowIdx + 1) ? `1px solid ${BASE_BORDER_COLOR}` : 'none',
                     }}
                   />
                 );
               }
+
               // Only render the event once, spanning the correct number of blocks
               const spanBlocks = event.endBlock - event.startBlock;
               const isSelected = selectedEventIds.includes(event.session.id);
               const isConflicting = conflictIds.has(event.session.id);
               const isActive = activeEventId === event.session.id;
+
               // Border color logic
-              let borderLeftRightColor = baseBorderColor;
+              let borderLeftRightColor = BASE_BORDER_COLOR;
               let borderTopBottomColor = '#eee';
+
               // Check if this is the only event in the row and has no overlap
               const eventsInRow: { event: EventGridPlacement; colIdx: number }[] = [];
               rooms.forEach((r, cIdx) => {
-                for (let b = 0; b < blocksPer30Min; ++b) {
-                  const placement = grid[blockStart + b][cIdx];
-                  if (placement && placement.startBlock === blockStart + b) {
-                    eventsInRow.push({ event: placement, colIdx: cIdx });
-                    break;
-                  }
+                const placement = grid[blockStart][cIdx];
+                if (placement && placement.startBlock === blockStart) {
+                  eventsInRow.push({ event: placement, colIdx: cIdx });
                 }
               });
+
               if (
                 eventsInRow.length === 1 &&
                 !sessions.some(
@@ -189,21 +310,21 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 borderTopBottomColor = '#1890ff';
               }
 
-              const borderLeft = borderLeftRightColor === baseBorderColor ? '1px solid transparent' : `1px solid ${borderLeftRightColor}`;
+              const borderLeft = borderLeftRightColor === BASE_BORDER_COLOR ? '1px solid transparent' : `1px solid ${borderLeftRightColor}`;
               return (
                 <div
                   key={room.id + '-' + rowIdx}
                   className="bg-[#e6f7ff] relative overflow-hidden"
                   style={{
                     gridColumn: `${colIdx + 2} / span 1`,
-                    gridRow: `${rowIdx + 2} / span ${Math.ceil(spanBlocks / blocksPer30Min)}`,
+                    gridRow: `${rowIdx + 2} / span ${spanBlocks}`,
                     borderTop: `1px solid ${borderTopBottomColor}`,
                     borderRight: `1px solid ${borderLeftRightColor}`,
-                    borderBottom: `1px solid ${borderTopBottomColor}`,
+                    borderBottom: sessionShouldHaveBorderBottom(rowIdx + spanBlocks - 1, colIdx) ? `1px solid ${borderTopBottomColor}` : 'none',
                     borderLeft,
-                    width: 200,
-                    minWidth: 200,
-                    maxWidth: 200,
+                    width: ROOM_COLUMN_WIDTH,
+                    minWidth: ROOM_COLUMN_WIDTH,
+                    maxWidth: ROOM_COLUMN_WIDTH,
                     boxSizing: 'border-box',
                     cursor: onEventClick ? 'pointer' : undefined,
                     zIndex: 1,

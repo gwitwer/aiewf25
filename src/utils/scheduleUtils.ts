@@ -1,4 +1,9 @@
 import { Room, Session, NormalizedSchedule, Speaker, TimeBlock, EventGridPlacement } from '../types/schedule';
+import {
+  CALENDAR_START_HOUR,
+  CALENDAR_END_HOUR,
+  BLOCKS_PER_HOUR,
+} from '../constants';
 
 export function normalizeSchedule(data: { sessions: Session[]; rooms: Room[]; speakers: Speaker[] }): NormalizedSchedule {
   const { sessions, rooms, speakers } = data;
@@ -52,13 +57,11 @@ export function getScheduleForDay(
 }
 
 export function buildEventGridPlacements(sessions: Session[], rooms: Room[]) {
-  // Build time blocks: 9:00am to 7:00pm, 10-min intervals
-  const startHour = 9;
-  const endHour = 19;
+  // Build time blocks: 9:00am to 7:00pm, 5-min intervals
   const timeBlocks: TimeBlock[] = [];
   let idx = 0;
-  for (let hour = startHour; hour < endHour; ++hour) {
-    for (let min = 0; min < 60; min += 10) {
+  for (let hour = CALENDAR_START_HOUR; hour < CALENDAR_END_HOUR; ++hour) {
+    for (let min = 0; min < 60; min += 5) {
       timeBlocks.push({
         label: `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`,
         hour,
@@ -77,7 +80,7 @@ export function buildEventGridPlacements(sessions: Session[], rooms: Room[]) {
     const d = new Date(dateStr);
     const hour = d.getHours();
     const min = d.getMinutes();
-    return (hour - startHour) * 6 + Math.floor(min / 10);
+    return (hour - CALENDAR_START_HOUR) * BLOCKS_PER_HOUR + Math.floor(min / 5);
   }
   const eventPlacements: EventGridPlacement[] = sessions.map(session => {
     const startBlock = timeToBlockIndex(session.startsAt);
