@@ -5,7 +5,8 @@ export const BLOCKS_PER_HOUR = 12; // 5-minute intervals
 export const BLOCKS_PER_30_MIN = 6; // 6 blocks per 30-minute interval
 export const TOTAL_BLOCKS = (CALENDAR_END_HOUR - CALENDAR_START_HOUR) * BLOCKS_PER_HOUR;
 export const TOTAL_ROWS = (CALENDAR_END_HOUR - CALENDAR_START_HOUR) * BLOCKS_PER_HOUR;
-export const CELL_HEIGHT = 12; // Height of each 5-minute block
+export const CELL_HEIGHT = 15; // Height of each 5-minute block
+export const MOBILE_CELL_HEIGHT = 15; // Height of each 5-minute block on mobile
 
 // Calendar styling constants
 export const BASE_BORDER_COLOR = '#eee';

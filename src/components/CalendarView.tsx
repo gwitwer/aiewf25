@@ -9,6 +9,7 @@ import {
   TOTAL_BLOCKS,
   TOTAL_ROWS,
   CELL_HEIGHT,
+  MOBILE_CELL_HEIGHT,
   BASE_BORDER_COLOR,
   ROOM_COLUMN_WIDTH,
   TIME_COLUMN_WIDTH,
@@ -40,10 +41,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   selectedDate,
 }) => {
   const [currentTimePosition, setCurrentTimePosition] = useState<number | null>(null);
+  const [minuteOffsetRemainder, setMinuteOffsetRemainder] = useState<number>(0);
 
   const normalized = normalizeSchedule({ sessions, rooms, speakers });
   const { speakerMap } = normalized;
   const { timeBlocks, eventPlacements } = buildEventGridPlacements(sessions, rooms);
+
+  // Calculate total table width
+  const totalTableWidth = TIME_COLUMN_WIDTH + (rooms.length * ROOM_COLUMN_WIDTH);
 
   // Update current time position every minute
   useEffect(() => {
@@ -59,18 +64,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         now.getFullYear() === selectedDate.getFullYear() &&
         now.getMonth() === selectedDate.getMonth() &&
         now.getDate() === selectedDate.getDate();
-      
-      console.log('isToday', isToday, {
-        now: now.toISOString(),
-        selected: selectedDate.toISOString(),
-        nowYear: now.getFullYear(),
-        selectedYear: selectedDate.getFullYear(),
-        nowMonth: now.getMonth(),
-        selectedMonth: selectedDate.getMonth(),
-        nowDate: now.getDate(),
-        selectedDate: selectedDate.getDate()
-      });
-      
+
       if (!isToday) {
         setCurrentTimePosition(null);
         return;
@@ -88,16 +82,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
       // Calculate exact position in 5-minute blocks
       const minuteOffset = Math.floor(currentMinute / 5); // Round down to nearest 5 minutes
+      setMinuteOffsetRemainder(currentMinute % 5);
       const totalOffset = (hourOffset * BLOCKS_PER_HOUR) + minuteOffset;
-      
-      console.log('Time position calculation:', {
-        currentHour,
-        currentMinute,
-        hourOffset,
-        minuteOffset,
-        totalOffset,
-        blocksPerHour: BLOCKS_PER_HOUR
-      });
       
       setCurrentTimePosition(totalOffset);
     };
@@ -174,10 +160,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           <div
             className="absolute left-0 right-0 z-50 pointer-events-none"
             style={{
-              top: `${(currentTimePosition + 4) * CELL_HEIGHT}px`, // +4 to account for header row (which is 4 blocks tall)
+              top: `${(currentTimePosition + 4 + minuteOffsetRemainder / 5) * CELL_HEIGHT}px`, // +4 to account for header row (which is 4 blocks tall)
               height: '2px',
               background: 'rgba(255, 0, 0, 0.33)',
-              width: '100%',
+              width: `${totalTableWidth}px`,
             }}
           >
           </div>
@@ -188,6 +174,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           style={{ 
             gridColumn: '1 / span 1', 
             gridRow: '1 / span 2',
+            borderColor: BASE_BORDER_COLOR,
           }}
         />
         {rooms.map((room, i) => (
@@ -201,7 +188,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
               minWidth: ROOM_COLUMN_WIDTH,
               maxWidth: ROOM_COLUMN_WIDTH,
               boxSizing: 'border-box',
-              lineHeight: 1.2,
+              lineHeight: 1.25,
+              borderColor: BASE_BORDER_COLOR,
             }}
           >
             {room.name}
@@ -328,6 +316,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     boxSizing: 'border-box',
                     cursor: onEventClick ? 'pointer' : undefined,
                     zIndex: 1,
+                    lineHeight: 1.33,
                   }}
                   onClick={onEventClick ? () => onEventClick(event!.session.id) : undefined}
                   title={isConflicting ? 'Conflicts with another selected event' : isSelected ? 'Selected' : 'Click to select'}
